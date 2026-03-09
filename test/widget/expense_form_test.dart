@@ -16,7 +16,7 @@ void main() {
     );
 
     // กด Save โดยไม่กรอกข้อมูล
-    await tester.tap(find.text('Save'));
+    await tester.tap(find.text("Save Expense"));
 
     await tester.pump();
 

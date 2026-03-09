@@ -9,12 +9,35 @@ class AddExpensePage extends StatefulWidget {
   State<AddExpensePage> createState() => _AddExpensePageState();
 }
 
-class _AddExpensePageState extends State<AddExpensePage> {
+class _AddExpensePageState extends State<AddExpensePage>
+    with SingleTickerProviderStateMixin {
 
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController amountController = TextEditingController();
+
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController =
+        AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+
+    _fadeAnimation =
+        CurvedAnimation(parent: _animationController, curve: Curves.easeIn);
+
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,69 +45,127 @@ class _AddExpensePageState extends State<AddExpensePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Add Expense"),
+        centerTitle: true,
       ),
 
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: FadeTransition(
+        opacity: _fadeAnimation,
 
-        child: Form(
-          key: _formKey,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
 
-          child: Column(
-            children: [
+          child: Form(
+            key: _formKey,
 
-              TextFormField(
-                controller: titleController,
-                decoration: const InputDecoration(
-                  labelText: "Title",
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                /// Fake Receipt Preview
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.asset(
+                    "assets/receipts/receipt1.jpg",
+                    height: 180,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
                 ),
 
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Required";
-                  }
-                  return null;
-                },
-              ),
+                const SizedBox(height: 25),
 
-              const SizedBox(height: 20),
-
-              TextFormField(
-                controller: amountController,
-                keyboardType: TextInputType.number,
-
-                decoration: const InputDecoration(
-                  labelText: "Amount",
+                /// Title Field
+                const Text(
+                  "Expense Title",
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
 
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Required";
-                  }
-                  return null;
-                },
-              ),
+                const SizedBox(height: 8),
 
-              const SizedBox(height: 30),
+                TextFormField(
+                  controller: titleController,
+                  decoration: InputDecoration(
+                    hintText: "Enter title",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
 
-              ElevatedButton(
-                onPressed: () {
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Required";
+                    }
+                    return null;
+                  },
+                ),
 
-                  if (_formKey.currentState!.validate()) {
+                const SizedBox(height: 20),
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Expense Saved"),
+                /// Amount Field
+                const Text(
+                  "Amount",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 8),
+
+                TextFormField(
+                  controller: amountController,
+                  keyboardType: TextInputType.number,
+
+                  decoration: InputDecoration(
+                    hintText: "0.00",
+                    prefixIcon: const Icon(Icons.attach_money),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Required";
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 30),
+
+                /// Save Button
+                SizedBox(
+                  width: double.infinity,
+
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    );
+                    ),
 
-                  }
+                    onPressed: () {
 
-                },
-                child: const Text("Save"),
-              ),
+                      if (_formKey.currentState!.validate()) {
 
-            ],
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text("Expense Saved"),
+                          ),
+                        );
+
+                      }
+
+                    },
+
+                    child: const Text(
+                      "Save Expense",
+                      style: TextStyle(fontSize: 16),
+                    ),
+                  ),
+                ),
+
+              ],
+            ),
           ),
         ),
       ),
