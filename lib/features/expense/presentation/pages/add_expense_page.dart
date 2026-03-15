@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:auto_route/auto_route.dart';
+import 'package:provider/provider.dart';
+import '../../../../providers/theme_provider.dart';
 
 @RoutePage()
 class AddExpensePage extends StatefulWidget {
@@ -42,10 +44,20 @@ class _AddExpensePageState extends State<AddExpensePage>
   @override
   Widget build(BuildContext context) {
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Add Expense"),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              themeProvider.isDark ? Icons.light_mode : Icons.dark_mode,
+            ),
+            onPressed: () => themeProvider.toggleTheme(),
+          ),
+        ],
       ),
 
       body: FadeTransition(

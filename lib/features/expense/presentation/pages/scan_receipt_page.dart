@@ -4,6 +4,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:auto_route/auto_route.dart';
 import '../../../../routes/app_router.dart';
+import 'package:provider/provider.dart';
+import '../../../../providers/theme_provider.dart';
 
 @RoutePage()
 class ScanReceiptPage extends StatefulWidget {
@@ -24,10 +26,20 @@ class _ScanReceiptPageState extends State<ScanReceiptPage> {
   final textRecognizer = TextRecognizer();
 
   Future<void> scanReceipt() async {
-
     final XFile? pickedImage =
         await picker.pickImage(source: ImageSource.camera);
 
+    await _processPickedImage(pickedImage);
+  }
+
+  Future<void> scanFromGallery() async {
+    final XFile? pickedImage =
+        await picker.pickImage(source: ImageSource.gallery);
+
+    await _processPickedImage(pickedImage);
+  }
+
+  Future<void> _processPickedImage(XFile? pickedImage) async {
     if (pickedImage == null) return;
 
     setState(() {
@@ -74,10 +86,20 @@ class _ScanReceiptPageState extends State<ScanReceiptPage> {
   @override
   Widget build(BuildContext context) {
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Scan Receipt"),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(
+              themeProvider.isDark ? Icons.light_mode : Icons.dark_mode,
+            ),
+            onPressed: () => themeProvider.toggleTheme(),
+          ),
+        ],
       ),
 
       body: SingleChildScrollView(
@@ -131,13 +153,24 @@ class _ScanReceiptPageState extends State<ScanReceiptPage> {
 
             const SizedBox(height: 30),
 
-            /// Scan Button
+            /// Scan Buttons
             SizedBox(
               height: 55,
               child: ElevatedButton.icon(
                 onPressed: isLoading ? null : scanReceipt,
                 icon: const Icon(Icons.camera_alt),
                 label: const Text("Open Camera"),
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            SizedBox(
+              height: 55,
+              child: ElevatedButton.icon(
+                onPressed: isLoading ? null : scanFromGallery,
+                icon: const Icon(Icons.photo_library),
+                label: const Text("Scan from Gallery"),
               ),
             ),
 

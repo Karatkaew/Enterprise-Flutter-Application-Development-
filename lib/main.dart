@@ -3,16 +3,32 @@ import 'routes/app_router.dart';
 import 'core/di/injection.dart';
 import 'package:provider/provider.dart';
 import 'providers/theme_provider.dart';
+import 'providers/expense_provider.dart';
 
 final appRouter = AppRouter();   // ⭐ เพิ่มบรรทัดนี้
+
+final lightTheme = ThemeData(
+  useMaterial3: true,
+  colorSchemeSeed: Colors.teal,
+  brightness: Brightness.light,
+);
+
+final darkTheme = ThemeData(
+  useMaterial3: true,
+  colorSchemeSeed: Colors.teal,
+  brightness: Brightness.dark,
+);
 
 void main() {
 
   setupDI();
 
   runApp(
-    ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ExpenseProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -28,15 +44,8 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return MaterialApp.router(
-  theme: ThemeData(
-    useMaterial3: true,
-    colorSchemeSeed: Colors.teal,
-    brightness: Brightness.light,
-  ),
-  darkTheme: ThemeData(
-    useMaterial3: true,
-    brightness: Brightness.dark,
-  ),
+  theme: lightTheme,
+  darkTheme: darkTheme,
   themeMode: themeProvider.themeMode,
   routerConfig: appRouter.config(),
 );
